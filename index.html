@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+</head>
+
+<body>
+    <h1>Rock Paper Scissors Game</h1>
+    <label>Select your move:</label>
+    <select id="move">
+        <option value="1">Rock</option>
+        <option value="2">Paper</option>
+        <option value="3">Scissors</option>
+    </select>
+    <button onclick="playGame()">Play</button>
+    <h2>Game History</h2>
+    <ul id="gameHistory"></ul>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.0.0-beta.37/dist/web3.min.js"></script>
+    <script>
+        const contractAddress = "YOUR_CONTRACT_ADDRESS";
+        const abi = [...]; // ABI of your smart contract
+
+        const web3 = new Web3(window.ethereum);
+
+        async function playGame() {
+            const selectedMove = parseInt(document.getElementById("move").value);
+            const accounts = await web3.eth.getAccounts();
+            const contract = new web3.eth.Contract(abi, contractAddress);
+
+            try {
+                const result = await contract.methods.play(selectedMove).send({
+                    from: accounts[0],
+                    value: web3.utils.toWei("0.0001", "ether"),
+                });
+                console.log(result);
+                displayGameResult(result.events.GameResult.returnValues);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function displayGameResult(result) {
+            const gameHistoryList = document.getElementById("gameHistory");
+            const listItem = document.createElement("li");
+            listItem.textContent = `Player: ${result.player}, Move: ${result.playerMove}, Opponent Move: ${result.randomMove}, Amount: ${web3.utils.fromWei(result.amount)} ETH, Result: ${result.result}`;
+            gameHistoryList.appendChild(listItem);
+        }
+    </script>
+</body>
+
+</html>
